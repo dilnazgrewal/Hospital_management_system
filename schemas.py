@@ -1,10 +1,10 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, ConfigDict
 import datetime
 from datetime import date
 from enum import Enum
 from typing import Optional
 
-class Gender(Enum):
+class Gender(str, Enum):
     MALE = 'male'
     FEMALE = 'female'
     OTHER = 'other'
@@ -26,7 +26,7 @@ class doctors_out(BaseModel):
     doctor_id: int
     full_name: str
     specialization: str
-    email: Optional[str] = None
+    email: Optional[EmailStr] = None
     department_id: int
     years_experience: int
     is_active: bool
@@ -49,6 +49,8 @@ class patients_in(BaseModel):
     email: Optional[str] = None
     blood_group: str
 
+    model_config = ConfigDict(use_enum_values=True)
+
 class patients_out(BaseModel):
     patient_id: int
     full_name: str
@@ -58,14 +60,16 @@ class patients_out(BaseModel):
     blood_group: str
     is_active: bool
     created_at: datetime.datetime
-    class Config:
-        from_attributes = True
+
+    model_config = ConfigDict(use_enum_values=True)
+
 
 class appointments_in(BaseModel):
     patient_id: int
     doctor_id: int
     appointment_date: date
     appointment_time: datetime.time
+    model_config = ConfigDict(use_enum_values=True)
 
 class appointments_out(BaseModel):
     appointment_id: int
@@ -74,8 +78,7 @@ class appointments_out(BaseModel):
     appointment_date: date
     appointment_time: datetime.time
     status: Status
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(use_enum_values=True)
 
 class medicine_in(BaseModel):
     name: str
@@ -118,6 +121,15 @@ class prescription_medicines_out(BaseModel):
     class Config:
         from_attributes = True
 
+class prescription_medicine_item(BaseModel):
+    medicine_id: int
+    dosage: str
+    frequency_per_day: int
+    duration_days: int
 
+class prescriptions_create_full(BaseModel):
+    appointment_id: int
+    notes: Optional[str] = None
+    medicines: list[prescription_medicine_item]
 
 
